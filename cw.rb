@@ -23,13 +23,51 @@ def add_random_blank_squares(number_of_blanks, grid)
 		if (grid[new_square[0]][new_square[1]] == '■')
 			redo
 		else
-		grid[new_square[0]][new_square[1]] = '■'
+			grid[new_square[0]][new_square[1]] = '■'
 		end
 	end
 end
 
-def remove_strange_blank_squares(grid)
+def neighbours(h, w, grid)
+	p "height=#{h} -- width=#{w}"
+	return_array = []
+# 	neighbours = [-1,0,1].product([-1,0,1]) - [0,0] #=> [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, 1]]
+# 	neighbours.each do |f,s|
+# 		unless (w < 0) || (w > WIDTH) || (h < 0) || (h > HEIGHT)
+# 			return_array << grid[w+f][h+s]
+# 		end
+# 	end
+# 	return_array
+# rescue
+# 	pry
+p (h+1 > HEIGHT)
+	return_array << grid[h+1][w+1] 	unless ((h+2 > HEIGHT) || (w+1 < WIDTH))
+	return_array << grid[h+1][w] 	unless ( h+2 > HEIGHT)
+	return_array << grid[h+1][w-1] 	unless ((h+2 > HEIGHT )|| (w-1 < 0))
+	return_array << grid[h][w+1] 	unless (					w+1 > WIDTH)
+	# return_array << grid[h][h]
+	return_array << grid[h][w-1] 	unless (					w-1 < 0	)
+	return_array << grid[h-1][w+1] 	unless ((h-1 < 0) 	|| (w+1 > WIDTH))
+	return_array << grid[h-1][w]  	unless (	h-1 < 0	)
+	return_array << grid[h-1][w-1]	  unless ((h-1 < 0) 	|| (w-1 < 0))
+	return_array.compact
+
 end
+
+def remove_strange_blank_squares(grid)
+	# grid[1][1]= '?'
+	grid.each_with_index do |height, height_index|
+		height.each_with_index do |width, width_index|
+			# p grid
+			# p grid[height][width]	
+			n = neighbours(height_index, width_index, grid)
+			if n == ['■','■','■'] || n == ['■','■','■','■'] || n == ['■','■','■','■','■']
+				grid[height][width] = '■'
+			end
+		end
+	end
+end
+
 
 
 
@@ -46,6 +84,11 @@ end
 
 grid = Array.new(HEIGHT) { Array.new(WIDTH) { '.' } }
 add_random_blank_squares(NUMBER_OF_BLANK_SQUARES, grid)
+print_grid grid
+
+remove_strange_blank_squares grid
 
 updated_grid = add_borders_to_grid grid
+p ''
 print_grid(updated_grid)
+
