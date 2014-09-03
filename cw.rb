@@ -29,27 +29,17 @@ def add_random_blank_squares(number_of_blanks, grid)
 end
 
 def neighbours(h, w, grid)
-	p "height=#{h} -- width=#{w}"
 	return_array = []
 # 	neighbours = [-1,0,1].product([-1,0,1]) - [0,0] #=> [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, 1]]
-# 	neighbours.each do |f,s|
-# 		unless (w < 0) || (w > WIDTH) || (h < 0) || (h > HEIGHT)
-# 			return_array << grid[w+f][h+s]
-# 		end
-# 	end
-# 	return_array
-# rescue
-# 	pry
-p (h+1 > HEIGHT)
-	return_array << grid[h+1][w+1] 	unless ((h+2 > HEIGHT) || (w+1 < WIDTH))
-	return_array << grid[h+1][w] 	unless ( h+2 > HEIGHT)
-	return_array << grid[h+1][w-1] 	unless ((h+2 > HEIGHT )|| (w-1 < 0))
+	# return_array << grid[h+1][w+1] 	unless ((h+2 > HEIGHT) || (w+1 < WIDTH)) # diagonal
+	return_array << grid[h+1][w] 	unless ( h+2 > HEIGHT) 
+	# return_array << grid[h+1][w-1] 	unless ((h+2 > HEIGHT )|| (w-1 < 0)) # diagonal
 	return_array << grid[h][w+1] 	unless (					w+1 > WIDTH)
-	# return_array << grid[h][h]
+	# return_array << grid[h][h]    #Commented out because it's the current square.
 	return_array << grid[h][w-1] 	unless (					w-1 < 0	)
-	return_array << grid[h-1][w+1] 	unless ((h-1 < 0) 	|| (w+1 > WIDTH))
+	# return_array << grid[h-1][w+1] 	unless ((h-1 < 0) 	|| (w+1 > WIDTH)) # diagonal
 	return_array << grid[h-1][w]  	unless (	h-1 < 0	)
-	return_array << grid[h-1][w-1]	  unless ((h-1 < 0) 	|| (w-1 < 0))
+	# return_array << grid[h-1][w-1]	  unless ((h-1 < 0) 	|| (w-1 < 0)) # diagonal
 	return_array.compact
 
 end
@@ -58,11 +48,9 @@ def remove_strange_blank_squares(grid)
 	# grid[1][1]= '?'
 	grid.each_with_index do |height, height_index|
 		height.each_with_index do |width, width_index|
-			# p grid
-			# p grid[height][width]	
 			n = neighbours(height_index, width_index, grid)
-			if n == ['■','■','■'] || n == ['■','■','■','■'] || n == ['■','■','■','■','■']
-				grid[height][width] = '■'
+			if n == ['■','■'] || n == ['■','■','■'] || n == ['■','■','■','■'] || n == ['■','■','■','■','■']
+				grid[height_index][width_index] = '■'
 			end
 		end
 	end
