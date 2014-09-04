@@ -302,10 +302,22 @@ def find_random_words_for_each_word
 end
 
 
-def find_random_word_and_update_grid w
-	new_word = @dict.sample[0]
+def find_random_word_and_update_grid
+	word = @words.select{|i| i.word.include? '.'}.sample
+	update_current_word_from_grid word
+	shortlist = create_shortlist_of_potential_words word
+	
+	if shortlist
+		new_word = shortlist.sample
+	else
+		@temp_grid.pop
+		return nil
+	end
 
-	@temp_grid << @grid
+	word.word = new_word
+	p word
+	update_current_word_to_grid word
+	# @temp_grid << updated_grid
 end
 
 def is_finished?
@@ -316,24 +328,34 @@ def is_finished?
 	r 
 end
 
-def update_current_word_to_grid w
+def update_current_word_from_grid w
 	count = w.length
 	current_grid = @temp_grid.last
-	current_word = ''
 	current_word = ''
 	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
 	starting_position = w.hw
 
-	p w
-	p dimension
-	p "count=#{count}"
+	# p w
+	# p dimension
+	# p "count=#{count}"
 	# current_grid[w.hw[0]+dimension[0]*n][w.hw[1]+dimension[1]*n]
 	count.times do |n|
 		p [w.hw[0]+(dimension[0]*n), w.hw[1]+(dimension[1]*n)]
 		current_word = current_word + current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)]
 	end
-	p "current_word=#{current_word}"
+	# p "current_word=#{current_word}"
 	w.word = current_word
+end
+
+def update_current_word_to_grid w
+
+	current_grid = @temp_grid.last
+	count = w.length
+	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
+
+	count.times do |n|
+		current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)] = w.word[n]
+	end
 end
 
 def update_keys
@@ -357,13 +379,13 @@ draw_numbers_and_symbols_to_grid
 
 update_keys
 
-binding.pry
-update_current_word_to_grid @words.first
-p create_shortlist_of_potential_words @words.first
+find_random_word_and_update_grid
+
+
 
 # find_random_words_for_each_word
 # binding.pry
 # @words.each {|w| p w}
 @display_grid.each {|i| p i.join('')}
-# @grid.each {|i| p i.join('')}
+@grid.each {|i| p i.join('')}
 # binding.pry
