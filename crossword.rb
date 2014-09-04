@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # encoding: UTF-8
 load 'dict.rb'
 require 'pry'
@@ -388,8 +389,17 @@ def find_random_word_and_update_grid
 end
 # =================================================================
 def get_definition w
-	word = @dict.select{|i| i[0]==w}
+	word = @dict.select{|i| i[0].downcase==w.downcase}
+	begin
 	definition = word[0][1].sample
+rescue
+	p 'OMG.'
+	p w
+	p word
+	binding.pry 
+end
+	definition.strip!
+	definition.gsub!(/^\.|\.$/, '')
 	definition.strip!
 	definition[0] = definition[0].upcase
 	definition
@@ -445,7 +455,7 @@ update_keys
 count = 0
 while !is_finished?
 	# p count
-	if count > 25
+	if count > 10
 		Kernel.exec 'ruby crossword.rb'
 	end
 	count += 1
@@ -464,10 +474,7 @@ find_and_display_clues
 	p ' ' * @grid[0].count * CELL_WIDTH
 	p ' ' * @grid[0].count * CELL_WIDTH
 	p ' ' * @grid[0].count * CELL_WIDTH
-	p ' ' * @grid[0].count * CELL_WIDTH
-	p ' ' * @grid[0].count * CELL_WIDTH
-	p ' ' * @grid[0].count * CELL_WIDTH
-p 'Clues'
+p 'Answer:'
 	p ' ' * @grid[0].count * CELL_WIDTH
 	p ' ' * @grid[0].count * CELL_WIDTH
 
