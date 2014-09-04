@@ -381,10 +381,7 @@ update_keys
 
 find_random_word_and_update_grid
 
-
-
 # find_random_words_for_each_word
-# binding.pry
 # @words.each {|w| p w}
 @display_grid.each {|i| p i.join('')}
 @grid.each {|i| p i.join('')}
