@@ -1,6 +1,6 @@
 # Creates Crosswords
 
-### Generates Random Crossword Layouts like: 
+### Generates Random Crossword Layouts.
 
 		     XXXXXXXXXXX    XXXXXX
 		     X1→↓ X2↓  X    X3↓  X
