@@ -389,14 +389,18 @@ end
 # =================================================================
 def get_definition w
 	word = @dict.select{|i| i[0]==w}
-	word[0][1].sample
-end
+	definition = word[0][1].sample
+	definition.strip!
+	definition[0] = definition[0].upcase
+	definition
+	end
 
 def find_and_display_clues
 	list_of_clues={}
 	list_of_clues['accross'] = []
 	list_of_clues['down'] = []
 	@words.each do |word|
+
 		# binding.pry
 		display_info = "#{sprintf("%-3d", word.number)} - #{get_definition word.word} (#{word.length})"
 		orientation = ((word.dimension == 'horizontal') ? 'accross' : 'down')
@@ -440,8 +444,8 @@ update_keys
 
 count = 0
 while !is_finished?
-	p count
-	if count > 10
+	# p count
+	if count > 25
 		Kernel.exec 'ruby crossword.rb'
 	end
 	count += 1
@@ -467,5 +471,5 @@ p 'Clues'
 	p ' ' * @grid[0].count * CELL_WIDTH
 	p ' ' * @grid[0].count * CELL_WIDTH
 
-@temp_grid.last.each {|i| p i.join(' ')}
+@temp_grid.last.each {|i| p i.join(' ').upcase}
 
