@@ -295,14 +295,18 @@ def draw_numbers_and_symbols_to_grid
 end
 
 def find_random_words_for_each_word
-	@temp_grid << @grid
 	unless is_finished?
 		@words.sample.find_random_word_and_update_grid word
 	end
 end
 
+def duplicate_temp_grid
+	tmp = @temp_grid.last.dup
+	@temp_grid << tmp
+end
 
 def find_random_word_and_update_grid
+	# duplicate_temp_grid
 	word = @words.select{|i| i.word.include? '.'}.sample
 	update_current_word_from_grid word
 	shortlist = create_shortlist_of_potential_words word
@@ -316,8 +320,8 @@ def find_random_word_and_update_grid
 
 	word.word = new_word
 	p word
-	update_current_word_to_grid word
-	# @temp_grid << updated_grid
+	
+	@temp_grid << (update_current_word_to_grid word)
 end
 
 def is_finished?
@@ -330,7 +334,7 @@ end
 
 def update_current_word_from_grid w
 	count = w.length
-	current_grid = @temp_grid.last
+	current_grid = @temp_grid.last.dup
 	current_word = ''
 	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
 	starting_position = w.hw
@@ -349,13 +353,18 @@ end
 
 def update_current_word_to_grid w
 
-	current_grid = @temp_grid.last
+	current_grid = @temp_grid.last.dup
 	count = w.length
 	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
 
 	count.times do |n|
+		begin
 		current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)] = w.word[n]
+	rescue
+		binding.pry
 	end
+	end
+	current_grid
 end
 
 def update_keys
@@ -371,18 +380,23 @@ create_grid
 deal_with_words
 # add_borders_to_grid
 print_grid
+@temp_grid << @grid.dup
 @display_grid = print_grid_properly
 sort_out_words
 draw_numbers_and_symbols_to_grid
 
-@temp_grid << @grid
-
+ 
 update_keys
 
 find_random_word_and_update_grid
+find_random_word_and_update_grid
+find_random_word_and_update_grid
+find_random_word_and_update_grid
+
 
 # find_random_words_for_each_word
 # @words.each {|w| p w}
 @display_grid.each {|i| p i.join('')}
 @grid.each {|i| p i.join('')}
-# binding.pry
+p @temp_grid
+binding.pry
