@@ -299,30 +299,12 @@ def find_random_words_for_each_word
 		@words.sample.find_random_word_and_update_grid word
 	end
 end
-
+# =================================================================
 def duplicate_temp_grid
-	tmp = @temp_grid.last.dup
-	@temp_grid << tmp
+	@temp_grid << @temp_grid.last.dup
 end
 
-def find_random_word_and_update_grid
-	# duplicate_temp_grid
-	word = @words.select{|i| i.word.include? '.'}.sample
-	update_current_word_from_grid word
-	shortlist = create_shortlist_of_potential_words word
-	
-	if shortlist
-		new_word = shortlist.sample
-	else
-		@temp_grid.pop
-		return nil
-	end
 
-	word.word = new_word
-	p word
-	
-	@temp_grid << (update_current_word_to_grid word)
-end
 
 def is_finished?
 	r = true
@@ -353,16 +335,13 @@ end
 
 def update_current_word_to_grid w
 
-	current_grid = @temp_grid.last.dup
+	# new_grid = @temp_grid.last.dup
+	current_grid = Marshal.load( Marshal.dump(@temp_grid.last.dup) )
 	count = w.length
 	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
 
 	count.times do |n|
-		begin
-		current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)] = w.word[n]
-	rescue
-		binding.pry
-	end
+			current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)] = w.word[n]
 	end
 	current_grid
 end
@@ -372,9 +351,36 @@ def update_keys
 end
 
 def create_shortlist_of_potential_words w
-	@keys.map {|k| k.match(Regexp.new (w.word)).to_s}.reject{|i| i==''}
+	@keys.map {|k| k.match(Regexp.new ('^' + w.word + '$')).to_s}.reject{|i| i==''}
 end
 
+def find_random_word_and_update_grid
+	# duplicate_temp_grid
+
+	word = @words.select{|i| i.word.include? '.'}.sample
+	p "in find&update_grid."
+	update_current_word_from_grid word
+	shortlist = create_shortlist_of_potential_words word
+	p "shortlist=#{shortlist}"
+	p '/shortlist'
+	
+	if shortlist.any?
+		new_word = shortlist.sample
+	else
+		@temp_grid.pop
+		return nil
+	end
+
+	word.word = new_word
+	if new_word == nil
+		abort 'omg. nil'
+	end
+	p word
+	# update_current_word_to_grid word
+	@temp_grid << (update_current_word_to_grid word)
+	# binding.pry
+end
+# =================================================================
 
 create_grid
 deal_with_words
@@ -385,13 +391,14 @@ print_grid
 sort_out_words
 draw_numbers_and_symbols_to_grid
 
- 
 update_keys
-
-find_random_word_and_update_grid
-find_random_word_and_update_grid
-find_random_word_and_update_grid
-find_random_word_and_update_grid
+unless is_finished?
+	find_random_word_and_update_grid
+	find_random_word_and_update_grid
+	find_random_word_and_update_grid
+	find_random_word_and_update_grid
+end
+# find_random_word_and_update_grid
 
 
 # find_random_words_for_each_word
