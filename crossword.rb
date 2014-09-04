@@ -334,7 +334,6 @@ def update_current_word_from_grid w
 		# p [w.hw[0]+(dimension[0]*n), w.hw[1]+(dimension[1]*n)]
 		current_word = current_word + current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)]
 	end
-	# binding.pry
 	w.word = current_word
 end
 
@@ -352,31 +351,30 @@ end
 
 
 def find_random_word_and_update_grid
-	@words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
+	# @words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
 	word = @words.select{|i| i.word.include? '.'}.sample
-	p "looking at: #{word.hw}" 
+	# p "looking at: #{word.hw}" 
 	# @words.each {|i| update_current_word_from_grid i}
 	update_current_word_from_grid word
-	p "need to fit: #{word.word}"
+	# p "need to fit: #{word.word}"
 	shortlist = create_shortlist_of_potential_words word
 
 	if shortlist.any?
 		new_word = shortlist.sample
-		p "found: #{new_word}"
+		# p "found: #{new_word}"
 	else
-		p 'nope. Nothing fits'
+		# p 'nope. Nothing fits'
 		@temp_grid.pop
 		@words.each {|i| update_current_word_from_grid i}
 
-		@temp_grid.last.each {|i| p i }
-		p ''
+		# @temp_grid.last.each {|i| p i }
+		# p ''
 		word.word = '.'
-		p "word reset: #{word}"
-		p "word reset: #{word.word}"
-		p word
-			@words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
+		# p "word reset: #{word}"
+		# p "word reset: #{word.word}"
+		# p word 
+			# @words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
 
-		# binding.pry
 		return nil	
 	end
 
@@ -384,10 +382,50 @@ def find_random_word_and_update_grid
 
 	@temp_grid << (update_current_word_to_grid word)
 
-	@temp_grid.last.each {|i| p i }
-	p ''
+	# @temp_grid.last.each {|i| p i }
+	# p ''
 
 end
+# =================================================================
+def get_definition w
+	word = @dict.select{|i| i[0]==w}
+	word[0][1].sample
+end
+
+def find_and_display_clues
+	list_of_clues={}
+	list_of_clues['accross'] = []
+	list_of_clues['down'] = []
+	@words.each do |word|
+		# binding.pry
+		display_info = "#{sprintf("%-3d", word.number)} - #{get_definition word.word} (#{word.length})"
+		orientation = ((word.dimension == 'horizontal') ? 'accross' : 'down')
+		list_of_clues[orientation] << display_info
+	end
+	p ' ' * @grid[0].count * CELL_WIDTH 
+	p ' ' * @grid[0].count * CELL_WIDTH
+	p ' ' * @grid[0].count * CELL_WIDTH
+
+	p 'Accross' 
+	p ' ' * @grid[0].count * CELL_WIDTH
+
+	list_of_clues['accross'].each do |i|
+		p i 
+	end
+
+	p ' ' * @grid[0].count * CELL_WIDTH 
+	p ' ' * @grid[0].count * CELL_WIDTH
+
+		p 'Down' 
+	p ' ' * @grid[0].count * CELL_WIDTH
+
+	list_of_clues['down'].each do |i|
+		p i 
+	end
+
+end
+
+
 # =================================================================
 
 create_grid
@@ -399,18 +437,35 @@ sort_out_words
 draw_numbers_and_symbols_to_grid
 
 update_keys
+
+count = 0
 while !is_finished?
+	p count
+	if count > 10
+		Kernel.exec 'ruby crossword.rb'
+	end
+	count += 1
 	find_random_word_and_update_grid
 end
 # find_random_word_and_update_grid
-
-
 # find_random_words_for_each_word
 # @words.each {|w| p w}
-
 # @grid.each {|i| p i.join('')}
 
-@temp_grid.last.each {|i| p i.join('')}
-@words.each {|i| p i}
-p 'Nice One. Apparenlty'
+
+# @temp_grid.last.each {|i| p i.join('')}
+# @words.each {|i| p i}
 @display_grid.each {|i| p i.join('')}
+find_and_display_clues
+	p ' ' * @grid[0].count * CELL_WIDTH
+	p ' ' * @grid[0].count * CELL_WIDTH
+	p ' ' * @grid[0].count * CELL_WIDTH
+	p ' ' * @grid[0].count * CELL_WIDTH
+	p ' ' * @grid[0].count * CELL_WIDTH
+	p ' ' * @grid[0].count * CELL_WIDTH
+p 'Clues'
+	p ' ' * @grid[0].count * CELL_WIDTH
+	p ' ' * @grid[0].count * CELL_WIDTH
+
+@temp_grid.last.each {|i| p i.join(' ')}
+
