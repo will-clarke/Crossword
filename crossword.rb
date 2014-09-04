@@ -299,43 +299,47 @@ def find_random_words_for_each_word
 		@words.sample.find_random_word_and_update_grid word
 	end
 end
-# =================================================================
-def duplicate_temp_grid
-	@temp_grid << @temp_grid.last.dup
+
+
+
+def update_keys
+	@keys = @dict.map{|i| i[0]}
 end
 
-
-
+# =================================================================
 def is_finished?
 	r = true
 	@words.each do |w|
 		r = false if w.word.include? '.'
 	end
+	# !(@temp_grid.last.flatten.include? '.')
 	r 
 end
 
+
+def create_shortlist_of_potential_words w
+	@keys.map {|k| k.match(Regexp.new ('^' + w.word + '$'), true).to_s}.reject{|i| i==''}
+end
+
+# =================================================================
+
 def update_current_word_from_grid w
 	count = w.length
-	current_grid = @temp_grid.last.dup
+	current_grid = Marshal.load( Marshal.dump(@temp_grid.last.dup) )
 	current_word = ''
 	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
 	starting_position = w.hw
 
-	# p w
-	# p dimension
-	# p "count=#{count}"
-	# current_grid[w.hw[0]+dimension[0]*n][w.hw[1]+dimension[1]*n]
 	count.times do |n|
-		p [w.hw[0]+(dimension[0]*n), w.hw[1]+(dimension[1]*n)]
+		# p [w.hw[0]+(dimension[0]*n), w.hw[1]+(dimension[1]*n)]
 		current_word = current_word + current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)]
 	end
-	# p "current_word=#{current_word}"
+	# binding.pry
 	w.word = current_word
 end
 
 def update_current_word_to_grid w
 
-	# new_grid = @temp_grid.last.dup
 	current_grid = Marshal.load( Marshal.dump(@temp_grid.last.dup) )
 	count = w.length
 	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
@@ -346,56 +350,56 @@ def update_current_word_to_grid w
 	current_grid
 end
 
-def update_keys
-	@keys = @dict.map{|i| i[0]}
-end
-
-def create_shortlist_of_potential_words w
-	@keys.map {|k| k.match(Regexp.new ('^' + w.word + '$')).to_s}.reject{|i| i==''}
-end
 
 def find_random_word_and_update_grid
-	# duplicate_temp_grid
-
+	@words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
 	word = @words.select{|i| i.word.include? '.'}.sample
-	p "in find&update_grid."
+	p "looking at: #{word.hw}" 
+	# @words.each {|i| update_current_word_from_grid i}
 	update_current_word_from_grid word
+	p "need to fit: #{word.word}"
 	shortlist = create_shortlist_of_potential_words word
-	p "shortlist=#{shortlist}"
-	p '/shortlist'
-	
+
 	if shortlist.any?
 		new_word = shortlist.sample
+		p "found: #{new_word}"
 	else
+		p 'nope. Nothing fits'
 		@temp_grid.pop
-		return nil
+		@words.each {|i| update_current_word_from_grid i}
+
+		@temp_grid.last.each {|i| p i }
+		p ''
+		word.word = '.'
+		p "word reset: #{word}"
+		p "word reset: #{word.word}"
+		p word
+			@words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
+
+		# binding.pry
+		return nil	
 	end
 
 	word.word = new_word
-	if new_word == nil
-		abort 'omg. nil'
-	end
-	p word
-	# update_current_word_to_grid word
+
 	@temp_grid << (update_current_word_to_grid word)
-	# binding.pry
+
+	@temp_grid.last.each {|i| p i }
+	p ''
+
 end
 # =================================================================
 
 create_grid
 deal_with_words
 # add_borders_to_grid
-print_grid
 @temp_grid << @grid.dup
 @display_grid = print_grid_properly
 sort_out_words
 draw_numbers_and_symbols_to_grid
 
 update_keys
-unless is_finished?
-	find_random_word_and_update_grid
-	find_random_word_and_update_grid
-	find_random_word_and_update_grid
+while !is_finished?
 	find_random_word_and_update_grid
 end
 # find_random_word_and_update_grid
@@ -403,7 +407,10 @@ end
 
 # find_random_words_for_each_word
 # @words.each {|w| p w}
+
+# @grid.each {|i| p i.join('')}
+
+@temp_grid.last.each {|i| p i.join('')}
+@words.each {|i| p i}
+p 'Nice One. Apparenlty'
 @display_grid.each {|i| p i.join('')}
-@grid.each {|i| p i.join('')}
-p @temp_grid
-binding.pry
