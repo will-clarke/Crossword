@@ -158,6 +158,7 @@ def deal_with_words
 	@grid = @grid.transpose
 	fill_in_words('vertical')
 	@grid = @grid.transpose
+	@words.reject!{|w| w.length<2}
 end
 def fill_in_words(dimension)
 	word_number = 1
@@ -254,7 +255,40 @@ def draw_numbers(word)
 	# ↓→
 end
 
+def sort_out_words
+	word_list = {}
+	@words.each do |word|
+		if word_list[word.hw]
+		p word_list[word.hw] 
+	end
+		word_list[word.hw] = word.number.to_s + (word.dimension=='horizontal' ? '→' : '↓')
+	end
 
+	word_list.sort.each_with_index do |coord, num|
+		@words.each do |word|
+			if word.hw == coord[0]
+				word.number = num+1
+			end
+		end
+	end
+end
+
+def draw_numbers_and_symbols_to_grid
+	@words.each do |word|
+		4.times do |n|
+			text = (word.number.to_s + (word.dimension=='horizontal' ? '→' : '↓')).split(//)
+			if @display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n] != ' '
+				# p @display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n]
+				if @display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n] == '→'
+					@display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n + 1] = '↓'
+				end
+				# @display_grid[draw_numbers(word)[0]+1].join.gsub!('→ ','→↓').split(//)
+			else
+				@display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n] = text[n] if text[n] 
+			end
+		end
+	end
+end
 
 create_grid
 
@@ -266,32 +300,23 @@ deal_with_words
 # add_borders_to_grid
 
 
-@words.each {|w| p w}
 print_grid
 @display_grid = print_grid_properly
+sort_out_words
+draw_numbers_and_symbols_to_grid
 # @display_grid = @display_grid.transpose
-word_list = {}
 # @words.each do |word|
 # 	text = (word.number.to_s + (word.dimension=='horizontal' ? '→' : '↓')).split(//)
 # 	get_coords = word[@display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n]]
 # 	word[@display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n]] << text
 # end
-@words.each do |word|
-	if word_list[word.hw]
-	p word_list[word.hw] 
-end
-	word_list[word.hw] = word.number.to_s + (word.dimension=='horizontal' ? '→' : '↓')
-end
+
+# @words.each do |word|
+	# word_list.
 
 # @display_grid[draw_numbers(@words.first)[0]+1][draw_numbers(@words.first)[1]+1] = '@'
-@words.each do |word|
-	4.times do |n|
-		text = (word.number.to_s + (word.dimension=='horizontal' ? '→' : '↓')).split(//)
-		@display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n] = text[n] if text[n] 
-	end
-end
 
+@words.each {|w| p w}
 
 @display_grid.each {|i| p i.join('')}
-p word_list
 # binding.pry
