@@ -5,12 +5,12 @@ require 'pry'
 Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
-CELL_HEIGHT = 5
-CELL_WIDTH = 5
-
-HEIGHT = 3
+PERCENTAGE_OF_BLANK_SQUARES = 30
+HEIGHT = 5
 WIDTH = 5
-NUMBER_OF_BLANK_SQUARES = 5
+
+CELL_HEIGHT = 5
+CELL_WIDTH = 8
 
 @words = []
 @grid
@@ -43,7 +43,8 @@ end
 # ========================================
 def create_grid
 	@grid = Array.new(HEIGHT) { Array.new(WIDTH) { '.' } }
-	add_random_blank_squares(NUMBER_OF_BLANK_SQUARES)
+	number_of_blank_squares = (HEIGHT * WIDTH * (PERCENTAGE_OF_BLANK_SQUARES.to_f / 100)).to_i
+	add_random_blank_squares(number_of_blank_squares)
 	remove_strange_blank_squares
 	drop_outer_blanks
 end
@@ -57,6 +58,8 @@ def add_random_blank_squares(number_of_blanks)
 			@grid[new_square[0]][new_square[1]] = '█'
 		end
 	end
+	p 'add_random_blank_squares'
+	@grid.each {|i| p i.join(' ')}
 end
 # ========================================
 
@@ -86,6 +89,8 @@ def remove_strange_blank_squares
 			end
 		end
 	end
+	p 'remove remove_strange_blank_squares'
+	@grid.each {|i| p i.join ' '}
 end
 
 
@@ -156,6 +161,8 @@ def drop_outer_blanks
 			@grid = @grid.transpose.reverse
 		end
 	end
+	p 'drop_outer_blanks'
+	@grid.each {|i| p i.join (' ')}
 end
 
 def deal_with_words
@@ -196,9 +203,12 @@ def print_grid_properly
 	@grid.each_with_index do |line, line_index|
 		line.each_with_index do |cell, cell_index|
 			# p @grid[line_index][cell_index]
-			draw_cell([line_index, cell_index], new_grid) if @grid[line_index][cell_index] == '.'
-			draw_cell([line_index, cell_index], new_grid, '█') if @grid[line_index][cell_index] == '█'
-
+			case @grid[line_index][cell_index]
+			when '█'
+				draw_cell([line_index, cell_index], new_grid, '█')
+			when '.'
+				draw_cell([line_index, cell_index], new_grid)
+			end
 		end
 	end
 
@@ -263,9 +273,9 @@ end
 def sort_out_words
 	word_list = {}
 	@words.each do |word|
-	# 	if word_list[word.hw]
-	# 	# p word_list[word.hw] 
-	# end
+		# 	if word_list[word.hw]
+		# 	# p word_list[word.hw]
+		# end
 		word_list[word.hw] = word.number.to_s + (word.dimension=='horizontal' ? '→' : '↓')
 	end
 
@@ -289,16 +299,16 @@ def draw_numbers_and_symbols_to_grid
 				end
 				# @display_grid[draw_numbers(word)[0]+1].join.gsub!('→ ','→↓').split(//)
 			else
-				@display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n] = text[n] if text[n] 
+				@display_grid[draw_numbers(word)[0]+1][draw_numbers(word)[1]+1+n] = text[n] if text[n]
 			end
 		end
 	end
 end
 
 def find_random_words_for_each_word
-	unless is_finished?
-		@words.sample.find_random_word_and_update_grid word
-	end
+	# unless is_finished?
+	@words.sample.find_random_word_and_update_grid word
+	# end
 end
 
 
@@ -310,11 +320,16 @@ end
 # =================================================================
 def is_finished?
 	r = true
+	count = 0
 	@words.each do |w|
-		r = false if w.word.include? '.'
+		if w.word.include? '.'
+			r = false
+			count += 1
+		end
 	end
+	p count
 	# !(@temp_grid.last.flatten.include? '.')
-	r 
+	r
 end
 
 
@@ -336,6 +351,7 @@ def update_current_word_from_grid w
 		current_word = current_word + current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)]
 	end
 	w.word = current_word
+
 end
 
 def update_current_word_to_grid w
@@ -345,16 +361,52 @@ def update_current_word_to_grid w
 	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
 
 	count.times do |n|
-			current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)] = w.word[n]
+		current_grid[w.hw[0]+(dimension[0]*n)][w.hw[1]+(dimension[1]*n)] = w.word[n]
 	end
 	current_grid
 end
 
 
+def find_total_cells_in_the_word w
+	return_array = []
+	starting position = w.hw
+	dimension = w.dimension == 'horizontal' ?  [0,1] : [1,0]
+	length = w.length
+
+
+	w.length.times do |n|
+		return_array << [[w.hw[0]+(dimension[0]*n)],[w.hw[1]+(dimension[1]*n)]]
+	end
+	return_array
+end
+
+def populate_list_of_words_intersecting_these_cells cells
+	return_array = []
+	cells.each do |cell|
+		@words.each do |word|
+			p "word.hw: #{word.hw} -- cell: #{cell}"
+			return_array << word if word.hw == cell
+		end
+	end
+	return_array
+end
+
+def find_intersecting_words w
+	cells = find_total_cells_in_the_word w
+	populate_list_of_words_intersecting_these_cells cells
+end
+
+def remove_this_word w
+	#remove word.word
+	# remove FROM tmp_GRID.last
+
+end
+
 def find_random_word_and_update_grid
+
 	# @words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
 	word = @words.select{|i| i.word.include? '.'}.sample
-	# p "looking at: #{word.hw}" 
+	# p "looking at: #{word.hw}"
 	# @words.each {|i| update_current_word_from_grid i}
 	update_current_word_from_grid word
 	# p "need to fit: #{word.word}"
@@ -367,16 +419,29 @@ def find_random_word_and_update_grid
 		# p 'nope. Nothing fits'
 		@temp_grid.pop
 		@words.each {|i| update_current_word_from_grid i}
+		@words.each do |word|
+			if !word.word.include?('.')
+				unless @dict.select {|i| i[0].downcase == word.word.downcase}
+					p 'OMG. We have a rogue word. OMG.'
+					word.word = '.'
+					# if there's a word at the starting point, remove that word:
+					if find_intersecting_words word
+						remove_this_word(find_intersecting_words(word).sample)
+					end
+				end
+			end
+		end
+
 
 		# @temp_grid.last.each {|i| p i }
 		# p ''
 		word.word = '.'
 		# p "word reset: #{word}"
 		# p "word reset: #{word.word}"
-		# p word 
-			# @words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
+		# p word
+		# @words.sort{ |a,b| a.hw <=> b.hw }.each{|i| p i}
 
-		return nil	
+		return nil
 	end
 
 	word.word = new_word
@@ -391,50 +456,46 @@ end
 def get_definition w
 	word = @dict.select{|i| i[0].downcase==w.downcase}
 	begin
-	definition = word[0][1].sample
-rescue
-	p 'OMG.'
-	p w
-	p word
-	binding.pry 
-end
-	definition.strip!
-	definition.gsub!(/^\.|\.$/, '')
-	definition.strip!
-	definition[0] = definition[0].upcase
-	definition
+		definition = word[0][1].sample
+		definition.strip!
+		definition.gsub!(/^\.|\.$/, '')
+		definition.strip!
+		definition[0] = definition[0].upcase
+	rescue
+		binding.pry
 	end
+	definition
+end
 
 def find_and_display_clues
 	list_of_clues={}
 	list_of_clues['accross'] = []
 	list_of_clues['down'] = []
 	@words.each do |word|
-
-		# binding.pry
+		@dict.select
 		display_info = "#{sprintf("%-3d", word.number)} - #{get_definition word.word} (#{word.length})"
 		orientation = ((word.dimension == 'horizontal') ? 'accross' : 'down')
 		list_of_clues[orientation] << display_info
 	end
-	p ' ' * @grid[0].count * CELL_WIDTH 
 	p ' ' * @grid[0].count * CELL_WIDTH
 	p ' ' * @grid[0].count * CELL_WIDTH
-
-	p 'Accross' 
 	p ' ' * @grid[0].count * CELL_WIDTH
 
-	list_of_clues['accross'].each do |i|
-		p i 
+	p 'Accross'
+	p ' ' * @grid[0].count * CELL_WIDTH
+
+	list_of_clues['accross'].sort_by{|i| i[0..3].to_i}.each do |i|
+		p i
 	end
 
-	p ' ' * @grid[0].count * CELL_WIDTH 
+	p ' ' * @grid[0].count * CELL_WIDTH
 	p ' ' * @grid[0].count * CELL_WIDTH
 
-		p 'Down' 
+	p 'Down'
 	p ' ' * @grid[0].count * CELL_WIDTH
 
-	list_of_clues['down'].each do |i|
-		p i 
+	list_of_clues['down'].sort_by{|i| i[0..3].to_i}.each do |i|
+		p i
 	end
 
 end
@@ -455,7 +516,7 @@ update_keys
 count = 0
 while !is_finished?
 	# p count
-	if count > 10
+	if count > ((WIDTH + 2) * (HEIGHT + 2))
 		Kernel.exec 'ruby crossword.rb'
 	end
 	count += 1
@@ -471,12 +532,11 @@ end
 # @words.each {|i| p i}
 @display_grid.each {|i| p i.join('')}
 find_and_display_clues
-	p ' ' * @grid[0].count * CELL_WIDTH
-	p ' ' * @grid[0].count * CELL_WIDTH
-	p ' ' * @grid[0].count * CELL_WIDTH
+p ' ' * @grid[0].count * CELL_WIDTH
+p ' ' * @grid[0].count * CELL_WIDTH
+p ' ' * @grid[0].count * CELL_WIDTH
 p 'Answer:'
-	p ' ' * @grid[0].count * CELL_WIDTH
-	p ' ' * @grid[0].count * CELL_WIDTH
+p ' ' * @grid[0].count * CELL_WIDTH
+p ' ' * @grid[0].count * CELL_WIDTH
 
 @temp_grid.last.each {|i| p i.join(' ').upcase}
-

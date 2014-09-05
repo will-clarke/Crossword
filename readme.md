@@ -92,6 +92,69 @@ Answer
 	X # # # E	
 
 
+## Another Example:
+
+	        █████████████████████████████████
+	        █1→     █       █2↓     █3↓     █
+	        █       █       █       █       █
+	        █       █       █       █       █
+	        █       █       █       █       █
+	        █████████████████████████████████
+	                        █4→     █       █
+	                        █       █       █
+	                        █       █       █
+	                        █       █       █
+	█████████████████████████████████████████
+	█5→↓    █6↓     █7↓     █████████       █
+	█       █       █       █████████       █
+	█       █       █       █████████       █
+	█       █       █       █████████       █
+	█████████████████████████████████████████
+	█8→     █       █       █9↓     █       █
+	█       █       █       █       █       █
+	█       █       █       █       █       █
+	█       █       █       █       █       █
+	█████████████████████████████████████████
+	        █       █       █10→    █       █
+	        █       █       █       █       █
+	        █       █       █       █       █
+	        █       █       █       █       █
+	        █████████       █████████████████
+	
+
+                                        
+## Accross
+                                        
+- 1   - Bide one's time wait for a good opportunity (4)
+- 4   - = or else 1 (2)
+- 5   - Undergarment worn by women to support the breasts (3)
+- 8   - Singer with a bass voice (5)
+- 10  - Foot, feet (2)
+
+                                      
+## Down
+
+- 2   - Be unconnected with. Be to do with be concerned or connected with. Do away with colloq (2)
+- 3   - Disease of rye etc. Caused by a fungus (5)
+- 5   - Double-black (2)
+- 6   - Unit of absorbed dose of ionizing radiation (3)
+- 7   - Arsenic (2)
+- 9   - Sforzando (2)
+                                        
+                                        
+                                 
+                                        
+Answer:
+                                        
+                                        
+	# B I D E
+	# # # O R
+	B R A █ G
+	B A S S O
+	# D # F T
+
+
+
 ## Create your own crossword
 
 To generate a crossword for your very own, just run `crossword.rb`
